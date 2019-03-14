@@ -55,15 +55,15 @@ class Parser extends Component
             $tags = StringHelper::split($tags);
         }
 
-        return preg_replace_callback('/<('.implode('|', $tags).')([^>]*)>(.+?)<\/\1>/', function(array $match) use ($language) {
+        return preg_replace_callback('/<(' . implode('|', $tags) . ')([^>]*)>(.+?)<\/\1>/', function (array $match) use ($language) {
             $anchorName = $this->generateAnchorName($match[3], $language);
             $heading = strip_tags(str_replace(['&nbsp;', ' '], ' ', $match[3]));
 
-            return '<a'.($this->anchorClass ? ' class="'.$this->anchorClass.'"' : '').' id="'.$anchorName.'"></a>'.
-                '<'.$match[1].$match[2].'>'.
-                $match[3].
-                ' <a'.($this->anchorLinkClass ? ' class="'.$this->anchorLinkClass.'"' : '').' href="#'.$anchorName.'" title="'.Craft::t('anchors', $this->anchorLinkTitleText, ['heading' => $heading]).'">'.$this->anchorLinkText.'</a>'.
-                '</'.$match[1].'>';
+            return '<a' . ($this->anchorClass ? ' class="' . $this->anchorClass . '"' : '') . ' id="' . $anchorName . '"></a>' .
+            '<' . $match[1] . $match[2] . '>' .
+            $match[3] .
+            ' <a' . ($this->anchorLinkClass ? ' class="' . $this->anchorLinkClass . '"' : '') . ' href="#' . $anchorName . '" title="' . Craft::t('anchors', $this->anchorLinkTitleText, ['heading' => $heading]) . '">' . $this->anchorLinkText . '</a>' .
+                '</' . $match[1] . '>';
         }, $html);
     }
 
@@ -104,5 +104,32 @@ class Parser extends Component
 
         // Put them together as the anchor name
         return StringHelper::toAscii(implode('-', $words), $language);
+    }
+
+    /**
+     * Parses some HTML for headings and return an array with the names.
+     *
+     * @param string $html The HTML to parse
+     * @param string|string[] $tags The tags to add anchor links to.
+     * @param string|null The content language, used when converting non-ASCII characters to ASCII
+     * @return string The parsed HTML.
+     */
+    public function returnArray($html, $tags = 'h1,h2,h3', string $language = null)
+    {
+
+        if (is_string($tags)) {
+            $tags = StringHelper::split($tags);
+        }
+
+        $headings = [];
+        $headingsSorted = [];
+        preg_match_all('/<(' . implode('|', $tags) . ')([^>]*)>(.+?)<\/\1>/', $html, $headings);
+
+        for ($i = 0; $i < count($headings[3]); ++$i) {
+            $headingsSorted[$i]['url'] = '#' . $this->generateAnchorName($headings[3][$i], $language);
+            $headingsSorted[$i]['name'] = $headings[3][$i];
+        }
+        
+        return $headingsSorted;
     }
 }

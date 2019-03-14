@@ -31,7 +31,7 @@ class TwigExtension extends \Twig_Extension
     {
         return [
             new \Twig_Filter('anchors', [$this, 'anchorsFilter']),
-        ];
+            new \Twig_Filter('anchorsLinks', [$this, 'anchorsArray']),        ];
     }
 
     /**
@@ -46,5 +46,19 @@ class TwigExtension extends \Twig_Extension
     {
         $html = Plugin::getInstance()->getParser()->parseHtml($html, $tags, $language);
         return Template::raw($html);
+    }
+
+    /**
+     * Parses a string and returns an array with the links for creating an anchor-navigation-menu
+     *
+     * @param string $html The HTML to parse.
+     * @param mixed $tags The HTML tags to check for.
+     * @param string|null The content language, used when converting non-ASCII characters to ASCII
+     * @return array The array with the found tags
+     */
+    public function anchorsArray($html, $tags = 'h1,h2,h3', string $language = null)
+    {
+        $html = Plugin::getInstance()->getParser()->returnArray($html, $tags);
+        return $html;
     }
 }
