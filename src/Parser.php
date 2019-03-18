@@ -127,9 +127,9 @@ class Parser extends Component
 
         for ($i = 0; $i < count($headings[3]); ++$i) {
             $headingsSorted[$i]['url'] = '#' . $this->generateAnchorName($headings[3][$i], $language);
-            $headingsSorted[$i]['name'] = $headings[3][$i];
+            $headingsSorted[$i]['name'] = strip_tags($headings[3][$i]);
         }
-        
+
         return $headingsSorted;
     }
 }
